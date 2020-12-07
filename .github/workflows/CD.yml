@@ -34,7 +34,6 @@ jobs:
         run: npm run build
 
       - name: Prepare SSH Key
-        if: ${{github.ref == 'refs/heads/develop'}}
         run: 'echo "$SSH_KEY" > key && chmod 700 key'
         shell: bash
         env:
