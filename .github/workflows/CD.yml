@@ -27,8 +27,8 @@ jobs:
       - name: Install Node Modules
         run: npm install
 
-      - name: Run Tests (none atm smh)
-        run: CI=true npm test --passWithNoTests
+      #      - name: Run Tests (none atm smh)
+      #        run: CI=true npm test --passWithNoTests
 
       - name: Build Project
         run: npm run build
