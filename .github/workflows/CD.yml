@@ -27,23 +27,21 @@ jobs:
       - name: Install Node Modules
         run: npm install
 
-      - name: Run Tests
-        run: CI=true npm test
+      - name: Run Tests (none atm smh)
+        run: CI=true npm test --passWithNoTests
 
       - name: Build Project
         run: npm run build
-# TODO restore once set up
-#      - name: Prepare SSH Key
-#        if: ${{github.ref == 'refs/heads/develop'}}
-#        run: 'echo "$SSH_KEY" > key && chmod 700 key'
-#        shell: bash
-#        env:
-#          SSH_KEY: ${{secrets.KEY}}
-#
-#      - name: Upload Project to Dev Server
-#        if: ${{github.ref == 'refs/heads/main'}}
-#        run: scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key -r build/* ${{secrets.USERNAME}}@${{secrets.HOST}}:${{secrets.PATH}}
-#
-#      - name: Deploy Project on Dev Server
-#        if: ${{github.ref == 'refs/heads/main'}}
-#        run: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key ${{secrets.USERNAME}}@${{secrets.HOST}} ${{secrets.RESTART_SERVICE}}
+
+      - name: Prepare SSH Key
+        if: ${{github.ref == 'refs/heads/develop'}}
+        run: 'echo "$SSH_KEY" > key && chmod 700 key'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.KEY}}
+
+      - name: Upload Project to Dev Server
+        run: scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key -r build/* ${{secrets.USERNAME}}@${{secrets.HOST}}:${{secrets.PATH}}
+
+      - name: Deploy Project on Dev Server
+        run: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key ${{secrets.USERNAME}}@${{secrets.HOST}} ${{secrets.RESTART_SERVICE}}
