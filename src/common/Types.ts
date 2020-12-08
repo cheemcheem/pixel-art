@@ -14,3 +14,9 @@ export type ColourGridProps = {
   height: number,
   colours: number[][][]
 }
+
+export const GRID_SETTINGS = {
+  minDimension: 4,
+  maxDimension: 40,
+  defDimension: 30
+}

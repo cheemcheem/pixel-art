@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useWindowSize} from "react-use";
-import {CLICK_TYPES, DEFAULT_COLOUR, ERASE_COLOUR} from "../common/Types";
+import {CLICK_TYPES, DEFAULT_COLOUR, ERASE_COLOUR} from "../../common/Types";
 import ColourGrid from "./ColourGrid";
 
 const {NONE, RIGHT} = CLICK_TYPES;
@@ -13,6 +13,11 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
 
   const [paintColour] = useState(DEFAULT_COLOUR);
   const [grid, setGrid] = useState(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray())) as number[][][]);
+  useEffect(
+      () => setGrid(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray()))),
+      [columnCount, rowCount]
+  );
+
   const lastMouse = useRef<{ x: number, y: number }>();
   const windowSize = useWindowSize();
   const boxSizeInPixels = useMemo(() => Math.min(
