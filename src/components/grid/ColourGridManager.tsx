@@ -20,10 +20,10 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
 
   const lastMouse = useRef<{ x: number, y: number }>();
   const windowSize = useWindowSize();
-  const boxSizeInPixels = useMemo(() => Math.min(
+  const boxSizeInPixels = useMemo(() => Math.floor(Math.min(
       (windowSize.width * 0.8) / columnCount,
       (windowSize.height * 0.8) / rowCount
-  ), [columnCount, rowCount, windowSize.height, windowSize.width]);
+  )), [columnCount, rowCount, windowSize.height, windowSize.width]);
 
   const paintGridBox = useMemo(
       () => (rowIndex: number, colIndex: number, shouldPaint: boolean) => {
