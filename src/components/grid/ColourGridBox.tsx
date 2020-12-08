@@ -7,10 +7,11 @@ type ColourGridBoxProps = {
   rowIndex: number,
   boxSizeInPixels: number,
   columnCount: number,
-  rowCount: number
+  rowCount: number,
+  border: boolean,
 };
 
-const ColourGridBox = ({col, colIndex, rowIndex, boxSizeInPixels, columnCount, rowCount}
+const ColourGridBox = ({col, colIndex, rowIndex, boxSizeInPixels, columnCount, rowCount, border}
                            : ColourGridBoxProps) =>
     <rectangle
         name={`${rowIndex},${colIndex}`}
@@ -21,7 +22,7 @@ const ColourGridBox = ({col, colIndex, rowIndex, boxSizeInPixels, columnCount, r
         widthInPixels={boxSizeInPixels}
         heightInPixels={boxSizeInPixels}
         color={"#696969"}
-        thickness={1}
+        thickness={border ? 1 : 0}
     />
 ;
 export default ColourGridBox;

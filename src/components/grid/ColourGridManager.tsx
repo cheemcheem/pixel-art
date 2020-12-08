@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {useWindowSize} from "react-use";
+import {useMedia, useWindowSize} from "react-use";
 import {CLICK_TYPES, DEFAULT_COLOUR, ERASE_COLOUR} from "../../common/Types";
 import ColourGrid from "./ColourGrid";
 
@@ -50,6 +50,8 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
       }, [paintColour]
   );
 
+  const isMobile = useMedia('(hover: none) and (pointer: coarse)');
+  const [border, setBorder] = useState(false);
   useEffect(() => {
     const gridHeight = boxSizeInPixels * rowCount;
     const minY = (windowSize.height - gridHeight) / 2;
@@ -86,17 +88,31 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
     }
 
     const onpointermove = ({x, y, buttons}: MouseEvent) => {
+      const currentlyWithinRange = withinRange(x, y);
+
+      if (!isMobile) {
+        setBorder(currentlyWithinRange);
+      }
+
       if (buttons !== NONE) {
         drawLine(x, y, buttons);
+        if (isMobile) {
+          setBorder(border || currentlyWithinRange);
+        }
       } else {
-        document.body.style.cursor = withinRange(x, y) ? 'crosshair' : 'default';
+        document.body.style.cursor = currentlyWithinRange ? 'crosshair' : 'default';
       }
+
       lastMouse.current = {x, y};
     };
 
     const onpointerdown = (e: MouseEvent) => {
       const {x, y, buttons} = e;
-      if (withinRange(x, y)) {
+      const currentlyWithinRange = withinRange(x, y);
+      if (isMobile) {
+        setBorder(currentlyWithinRange);
+      }
+      if (currentlyWithinRange) {
         const colIndex = Math.floor((x - minX) / (boxSizeInPixels));
         const rowIndex = Math.floor((y - minY) / (boxSizeInPixels));
         paintGridBox(rowIndex, colIndex, !(buttons & RIGHT))
@@ -104,6 +120,9 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
     };
 
     const onpointerout = ({x, y, buttons}: MouseEvent) => {
+      if (isMobile) {
+        setBorder(false);
+      }
       if (buttons !== NONE) {
         drawLine(x, y, buttons);
       } else {
@@ -121,12 +140,13 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
       window.removeEventListener("pointerdown", onpointerdown);
       window.removeEventListener("pointerout", onpointerout);
     }
-  }, [boxSizeInPixels, columnCount, paintGridBox, paintGridLine, rowCount, windowSize]);
+  }, [border, boxSizeInPixels, columnCount, isMobile, paintGridBox, paintGridLine, rowCount, windowSize]);
 
   return useMemo(() => <ColourGrid grid={grid}
                                    columnCount={columnCount}
                                    rowCount={rowCount}
                                    boxSizeInPixels={boxSizeInPixels}
-  />, [boxSizeInPixels, columnCount, grid, rowCount]);
+                                   border={border}
+  />, [border, boxSizeInPixels, columnCount, grid, rowCount]);
 
 }

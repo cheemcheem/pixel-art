@@ -5,10 +5,11 @@ type ColourGridProps = {
   grid: number[][][],
   columnCount: number,
   rowCount: number,
-  boxSizeInPixels: number
+  boxSizeInPixels: number,
+  border: boolean,
 };
 
-const ColourGrid = ({grid, columnCount, rowCount, boxSizeInPixels}: ColourGridProps) => <>
+const ColourGrid = ({grid, columnCount, rowCount, boxSizeInPixels, border}: ColourGridProps) => <>
   {grid.flatMap((row, rowIndex) =>
       row.map((col, colIndex) =>
           <ColourGridBox
@@ -19,6 +20,7 @@ const ColourGrid = ({grid, columnCount, rowCount, boxSizeInPixels}: ColourGridPr
               boxSizeInPixels={boxSizeInPixels}
               columnCount={columnCount}
               rowCount={rowCount}
+              border={border}
           />
       )
   )}
