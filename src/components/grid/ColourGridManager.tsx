@@ -7,15 +7,18 @@ const {NONE, RIGHT} = CLICK_TYPES;
 
 type ColourGridManagerProps = {
   columnCount: number,
-  rowCount: number
+  rowCount: number,
+  grid: number[][][],
+  setGrid: React.Dispatch<React.SetStateAction<number[][][]>>,
+  sliding: boolean,
 }
-export default function ColourGridManager({columnCount, rowCount}: ColourGridManagerProps) {
+
+export default function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: ColourGridManagerProps) {
 
   const [paintColour] = useState(DEFAULT_COLOUR);
-  const [grid, setGrid] = useState(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray())) as number[][][]);
   useEffect(
       () => setGrid(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray()))),
-      [columnCount, rowCount]
+      [columnCount, rowCount, setGrid]
   );
 
   const lastMouse = useRef<{ x: number, y: number }>();
@@ -36,7 +39,7 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
           });
         }
       },
-      [grid, paintColour]
+      [grid, paintColour, setGrid]
   );
 
   const paintGridLine = useMemo(() =>
@@ -47,7 +50,7 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
           boxes.forEach(({rowIndex, colIndex}) => newGrid[rowIndex][colIndex] = newColour);
           return newGrid;
         });
-      }, [paintColour]
+      }, [paintColour, setGrid]
   );
 
   const isMobile = useMedia('(hover: none) and (pointer: coarse)');
@@ -146,7 +149,7 @@ export default function ColourGridManager({columnCount, rowCount}: ColourGridMan
                                    columnCount={columnCount}
                                    rowCount={rowCount}
                                    boxSizeInPixels={boxSizeInPixels}
-                                   border={border}
-  />, [border, boxSizeInPixels, columnCount, grid, rowCount]);
+                                   border={border || sliding}
+  />, [border, boxSizeInPixels, columnCount, grid, rowCount, sliding]);
 
 }

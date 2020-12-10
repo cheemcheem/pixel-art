@@ -1,18 +1,23 @@
-import React, {useMemo} from "react";
+import React, {memo, useMemo} from "react";
 import {useWindowSize} from "react-use";
 import {GRID_SETTINGS} from "../common/Types";
 
 const {minDimension, maxDimension, defDimension} = GRID_SETTINGS;
-export default function Slider({setDimensions}: { setDimensions: (columnCount: number, rowCount: number) => void }) {
+type SliderPropsType = {
+  setDimensions: React.Dispatch<React.SetStateAction<{ columnCount: number, rowCount: number }>>,
+  setSliding: React.Dispatch<React.SetStateAction<boolean>>,
+};
+
+function Slider({setDimensions, setSliding}: SliderPropsType) {
   const {width, height} = useWindowSize();
   const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isVertical} = useMemo(() => {
     const isVertical = height < width;
     return {
-      widthInPixels: isVertical ? Math.min(20, width * 0.1) : width * 0.8,
-      heightInPixels: !isVertical ? Math.min(20, height * 0.1) : height * 0.8,
-      leftInPixels: isVertical ? -4.5 * Math.min(width, height) / 10 : 0,
-      topInPixels: !isVertical ? -4.5 * Math.min(width, height) / 10 : 0,
-      isVertical
+      widthInPixels: isVertical ? Math.min(40, width * 0.1) : width * 0.8,
+      heightInPixels: !isVertical ? Math.min(40, height * 0.1) : height * 0.8,
+      leftInPixels: isVertical ? -0.40 * Math.min(width, height) - 40 : 0,
+      topInPixels: !isVertical ? -0.40 * Math.min(width, height) - 40 : 0,
+      isVertical,
     }
   }, [width, height]);
 
@@ -20,6 +25,8 @@ export default function Slider({setDimensions}: { setDimensions: (columnCount: n
     <slider minimum={minDimension}
             maximum={maxDimension}
             value={defDimension}
+            onPointerDownObservable={() => setSliding(true)}
+            onPointerUpObservable={() => setSliding(false)}
             step={1}
             barOffset={0}
             thumbWidth={isVertical ? widthInPixels : heightInPixels}
@@ -29,7 +36,14 @@ export default function Slider({setDimensions}: { setDimensions: (columnCount: n
             leftInPixels={leftInPixels}
             topInPixels={topInPixels}
             isVertical={isVertical}
-            onValueChangedObservable={(a: number) => setDimensions(a, a)}
+            background={"pink"}
+            thumbColor={"salmon"}
+            onValueChangedObservable={(dim: number) => setDimensions({
+              columnCount: dim,
+              rowCount: dim
+            })}
     />
   </>;
 }
+
+export default memo(Slider, () => true);
