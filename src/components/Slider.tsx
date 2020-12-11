@@ -1,14 +1,18 @@
 import React, {memo, useMemo} from "react";
 import {useWindowSize} from "react-use";
-import {GRID_SETTINGS} from "../common/Types";
+import {ERASE_COLOUR, GRID_SETTINGS} from "../common/Types";
 
 const {minDimension, maxDimension, defDimension} = GRID_SETTINGS;
 type SliderPropsType = {
-  setDimensions: React.Dispatch<React.SetStateAction<{ columnCount: number, rowCount: number }>>,
   setSliding: React.Dispatch<React.SetStateAction<boolean>>,
+  setGrid: React.Dispatch<React.SetStateAction<{
+    grid: number[][][],
+    columnCount: number,
+    rowCount: number,
+  }>>,
 };
 
-function Slider({setDimensions, setSliding}: SliderPropsType) {
+function Slider({setSliding, setGrid}: SliderPropsType) {
   const {width, height} = useWindowSize();
   const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isVertical} = useMemo(() => {
     const isVertical = height < width;
@@ -38,9 +42,10 @@ function Slider({setDimensions, setSliding}: SliderPropsType) {
             isVertical={isVertical}
             background={"pink"}
             thumbColor={"salmon"}
-            onValueChangedObservable={(dim: number) => setDimensions({
+            onValueChangedObservable={(dim: number) => setGrid({
+              grid: Array(dim).fill(Array(dim).fill(ERASE_COLOUR.asArray())),
               columnCount: dim,
-              rowCount: dim
+              rowCount: dim,
             })}
     />
   </>;

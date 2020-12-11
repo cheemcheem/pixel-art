@@ -1,20 +1,27 @@
 import {Color3, Color4, Vector3} from "@babylonjs/core";
 import React, {useMemo, useState} from "react";
 import {Engine, Scene} from 'react-babylonjs';
-import {ERASE_COLOUR} from "./common/Types";
+import {ERASE_COLOUR, GRID_SETTINGS} from "./common/Types";
 import DownloadButton from "./components/DownloadButton";
 import ColourGridManager from "./components/grid/ColourGridManager";
 import Slider from "./components/Slider";
 
+const {defDimension} = GRID_SETTINGS;
+
 function App() {
-  const [{columnCount, rowCount}, setDimensions] = useState({columnCount: 40, rowCount: 40});
-  const [grid, setGrid] = useState(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray())) as number[][][]);
+  const [{grid, columnCount, rowCount}, setGrid] = useState(
+      {
+        grid: Array(defDimension).fill(Array(defDimension).fill(ERASE_COLOUR.asArray())) as number[][][],
+        columnCount: defDimension,
+        rowCount: defDimension
+      }
+  );
   const [sliding, setSliding] = useState(false);
   return <>
     <Engine antialias canvasId="pixelArtCanvas">
       <Scene clearColor={useMemo(() => Color4.FromColor3(Color3.Random()), [])}>
         <adtFullscreenUi name={"pixelArtFullScreenUI"}>
-          <Slider setDimensions={setDimensions} setSliding={setSliding}/>
+          <Slider setSliding={setSliding} setGrid={setGrid}/>
           <DownloadButton grid={grid}/>
           <ColourGridManager
               columnCount={columnCount}

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {memo, useEffect, useMemo, useRef, useState} from "react";
 import {useMedia, useWindowSize} from "react-use";
 import {CLICK_TYPES, DEFAULT_COLOUR, ERASE_COLOUR} from "../../common/Types";
 import ColourGrid from "./ColourGrid";
@@ -9,18 +9,17 @@ type ColourGridManagerProps = {
   columnCount: number,
   rowCount: number,
   grid: number[][][],
-  setGrid: React.Dispatch<React.SetStateAction<number[][][]>>,
+  setGrid: React.Dispatch<React.SetStateAction<{
+    grid: number[][][],
+    columnCount: number,
+    rowCount: number,
+  }>>,
   sliding: boolean,
 }
 
-export default function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: ColourGridManagerProps) {
+function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: ColourGridManagerProps) {
 
   const [paintColour] = useState(DEFAULT_COLOUR);
-  useEffect(
-      () => setGrid(Array(columnCount).fill(Array(rowCount).fill(ERASE_COLOUR.asArray()))),
-      [columnCount, rowCount, setGrid]
-  );
-
   const lastMouse = useRef<{ x: number, y: number }>();
   const windowSize = useWindowSize();
   const boxSizeInPixels = useMemo(() => Math.floor(Math.min(
@@ -33,9 +32,9 @@ export default function ColourGridManager({columnCount, rowCount, grid, setGrid,
         const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
         if (grid[rowIndex][colIndex] !== newColour) {
           setGrid(prevGrid => {
-            const newGrid = prevGrid.map(a => a.map(b => b));
+            const newGrid = prevGrid.grid.map(a => a.map(b => b));
             newGrid[rowIndex][colIndex] = newColour;
-            return newGrid;
+            return {...prevGrid, grid: newGrid};
           });
         }
       },
@@ -46,9 +45,9 @@ export default function ColourGridManager({columnCount, rowCount, grid, setGrid,
       (boxes: { rowIndex: number, colIndex: number }[], shouldPaint: boolean) => {
         const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
         setGrid(prevGrid => {
-          const newGrid = prevGrid.map(a => a.map(b => b));
+          const newGrid = prevGrid.grid.map(a => a.map(b => b));
           boxes.forEach(({rowIndex, colIndex}) => newGrid[rowIndex][colIndex] = newColour);
-          return newGrid;
+          return {...prevGrid, grid: newGrid};
         });
       }, [paintColour, setGrid]
   );
@@ -153,3 +152,35 @@ export default function ColourGridManager({columnCount, rowCount, grid, setGrid,
   />, [border, boxSizeInPixels, columnCount, grid, rowCount, sliding]);
 
 }
+
+export default memo(ColourGridManager, (prevProps, nextProps) => {
+  const {columnCount: columnCountPrev, grid: gridPrev, rowCount: rowCountPrev, setGrid: setGridPrev, sliding: slidingPrev} = prevProps;
+  const {columnCount: columnCountNext, grid: gridNext, rowCount: rowCountNext, setGrid: setGridNext, sliding: slidingNext} = nextProps;
+
+  if (columnCountPrev !== columnCountNext) return false;
+  if (rowCountPrev !== rowCountNext) return false;
+  if (setGridPrev !== setGridNext) return false;
+  if (slidingPrev !== slidingNext) return false;
+
+  if (gridPrev.length !== gridNext.length) return false;
+
+  for (let colIndex = 0; colIndex < gridPrev.length; colIndex++) {
+    const gridColPrev = gridPrev[colIndex];
+    const gridColNext = gridNext[colIndex];
+    if (gridColPrev.length !== gridColNext.length) return false;
+
+    for (let rowIndex = 0; rowIndex < gridColPrev.length; rowIndex++) {
+      const gridRowPrev = gridColPrev[rowIndex];
+      const gridRowNext = gridColNext[rowIndex];
+      if (gridRowPrev.length !== gridRowNext.length) return false;
+
+      for (let colourIndex = 0; colourIndex < gridRowPrev.length; colourIndex++) {
+        const gridColourPrev = gridRowPrev[colourIndex];
+        const gridColourNext = gridRowNext[colourIndex];
+        if (gridColourPrev !== gridColourNext) return false;
+      }
+    }
+  }
+
+  return true;
+})
