@@ -1,20 +1,16 @@
 import download from "downloadjs";
 import {PNG} from "pngjs";
-import React, {useEffect, useMemo, useRef} from "react";
-import {useWindowSize} from "react-use";
+import React, {useEffect, useRef} from "react";
+import useRotationDimensions from "../hooks/useRotationDimensions";
 
 const DownloadButton = ({grid}: { grid: number[][][] }) => {
-  const {width, height} = useWindowSize();
-  const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isVertical} = useMemo(() => {
-    const isVertical = height < width;
-    return {
-      widthInPixels: isVertical ? Math.min(40, width * 0.1) : width * 0.8,
-      heightInPixels: !isVertical ? Math.min(40, height * 0.1) : height * 0.8,
-      leftInPixels: isVertical ? 0.40 * Math.min(width, height) + 40 : 0,
-      topInPixels: !isVertical ? 0.40 * Math.min(width, height) + 40 : 0,
-      isVertical,
-    }
-  }, [width, height]);
+  const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isHorizontal} = useRotationDimensions({
+    longSidePercent: 0.8,
+    shortSidePercent: 0.1,
+    shortSideMinPixels: 40,
+    shortSideOffSetPercent: 0.40,
+    default: {vertical: "bottom", horizontal: "right"},
+  });
 
   const click = useRef(() => {
   });
@@ -49,9 +45,9 @@ const DownloadButton = ({grid}: { grid: number[][][] }) => {
         thickness={0}
         background={"pink"}>
       <textBlock fontFamily={"monospace"}
-                 paddingRightInPixels={isVertical ? 4 : 0}
+                 paddingRightInPixels={isHorizontal ? 4 : 0}
                  fontSizeInPixels={18}
-                 text={isVertical ? "s\na\nv\ne" : "save"}/>
+                 text={isHorizontal ? "s\na\nv\ne" : "save"}/>
     </babylon-button>
   </>;
 }

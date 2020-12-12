@@ -4,6 +4,7 @@ import {Engine, Scene} from 'react-babylonjs';
 import {ERASE_COLOUR, GRID_SETTINGS} from "./common/Types";
 import DownloadButton from "./components/DownloadButton";
 import ColourGridManager from "./components/grid/ColourGridManager";
+import Logo from "./components/Logo";
 import Slider from "./components/Slider";
 
 const {defDimension} = GRID_SETTINGS;
@@ -30,6 +31,7 @@ function App() {
               setGrid={setGrid}
               sliding={sliding}
           />
+          <Logo trigger={rowCount}/>
         </adtFullscreenUi>
         <freeCamera setActiveOnSceneIfNoneActive name={"FreeCamera"} position={Vector3.Zero()}/>
       </Scene>

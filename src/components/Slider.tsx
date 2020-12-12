@@ -1,6 +1,6 @@
-import React, {memo, useMemo} from "react";
-import {useWindowSize} from "react-use";
+import React, {memo} from "react";
 import {ERASE_COLOUR, GRID_SETTINGS} from "../common/Types";
+import useRotationDimensions from "../hooks/useRotationDimensions";
 
 const {minDimension, maxDimension, defDimension} = GRID_SETTINGS;
 type SliderPropsType = {
@@ -13,17 +13,13 @@ type SliderPropsType = {
 };
 
 function Slider({setSliding, setGrid}: SliderPropsType) {
-  const {width, height} = useWindowSize();
-  const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isVertical} = useMemo(() => {
-    const isVertical = height < width;
-    return {
-      widthInPixels: isVertical ? Math.min(40, width * 0.1) : width * 0.8,
-      heightInPixels: !isVertical ? Math.min(40, height * 0.1) : height * 0.8,
-      leftInPixels: isVertical ? -0.40 * Math.min(width, height) - 40 : 0,
-      topInPixels: !isVertical ? -0.40 * Math.min(width, height) - 40 : 0,
-      isVertical,
-    }
-  }, [width, height]);
+  const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isHorizontal} = useRotationDimensions({
+    longSidePercent: 0.8,
+    shortSidePercent: 0.1,
+    shortSideMinPixels: 40,
+    shortSideOffSetPercent: 0.40,
+    default: {vertical: "top", horizontal: "left"},
+  });
 
   return <>
     <slider minimum={minDimension}
@@ -33,13 +29,13 @@ function Slider({setSliding, setGrid}: SliderPropsType) {
             onPointerUpObservable={() => setSliding(false)}
             step={1}
             barOffset={0}
-            thumbWidth={isVertical ? widthInPixels : heightInPixels}
+            thumbWidth={isHorizontal ? widthInPixels : heightInPixels}
             isThumbClamped
             widthInPixels={widthInPixels}
             heightInPixels={heightInPixels}
             leftInPixels={leftInPixels}
             topInPixels={topInPixels}
-            isVertical={isVertical}
+            isVertical={isHorizontal}
             background={"pink"}
             thumbColor={"salmon"}
             onValueChangedObservable={(dim: number) => setGrid({
