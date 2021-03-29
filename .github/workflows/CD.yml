@@ -30,17 +30,38 @@ jobs:
       #      - name: Run Tests (none atm smh)
       #        run: CI=true npm test --passWithNoTests
 
-      - name: Build Project
-        run: npm run build
+      - name: Update SHA
+        run: echo $GITHUB_SHA > $GITHUB_WORKSPACE/src/_meta
 
-      - name: Prepare SSH Key
-        run: 'echo "$SSH_KEY" > key && chmod 700 key'
-        shell: bash
+      - name: Build container image
+        run: docker build -t ${{secrets.DOCKER_REGISTRY}}:$(echo $GITHUB_SHA | head -c7) .
+      
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{secrets.DIGITALOCEAN_ACCESS_TOKEN}}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{secrets.DOCKER_REGISTRY}}:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update deployment file
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{secrets.DOCKER_REGISTRY}}:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yaml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{secrets.KUBERNETES_CONTEXT}}
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/deployment.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment pixel-art-deployment
+
+      - name: Alert IFTTT
+        if: ${{github.ref == 'refs/heads/develop'}}
+        uses: distributhor/workflow-webhook@v1
         env:
-          SSH_KEY: ${{secrets.KEY}}
-
-      - name: Upload Project to Dev Server
-        run: scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key -r build/* ${{secrets.USERNAME}}@${{secrets.HOST}}:${{secrets.PATH}}
-
-      - name: Deploy Project on Dev Server
-        run: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i key ${{secrets.USERNAME}}@${{secrets.HOST}} ${{secrets.RESTART_SERVICE}}
+          webhook_url: ${{secrets.IFTTT_URL}}
+          webhook_secret: ${{secrets.IFTTT_SECRET}}

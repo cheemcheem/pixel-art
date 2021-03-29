@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixel-art-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pixel-art
+  template:
+    metadata:
+      labels:
+        app: pixel-art
+    spec:
+      containers:
+      - image: <IMAGE>
+        name: pixel-art-container
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pixel-art-service
+spec:
+  selector:
+     app: pixel-art
+  type: ClusterIP
+  ports:
+    - name: pixel-art-port
+      port: 80
