@@ -1,0 +1,5 @@
+#pixel-art-canvas {
+    touch-action: none;
+    width: 800px;
+    height: 800px;
+}

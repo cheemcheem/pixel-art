@@ -22,7 +22,7 @@ function Slider({setSliding, setGrid}: SliderPropsType) {
   });
 
   return <>
-    <slider minimum={minDimension}
+    {/* <slider minimum={minDimension}
             maximum={maxDimension}
             value={defDimension}
             onPointerDownObservable={() => setSliding(true)}
@@ -43,7 +43,7 @@ function Slider({setSliding, setGrid}: SliderPropsType) {
               columnCount: dim,
               rowCount: dim,
             })}
-    />
+    /> */}
   </>;
 }
 

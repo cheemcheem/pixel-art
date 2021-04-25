@@ -1,31 +1,28 @@
-import React, {memo, useEffect, useMemo, useRef, useState} from "react";
-import {useMedia, useWindowSize} from "react-use";
-import {CLICK_TYPES, DEFAULT_COLOUR, ERASE_COLOUR} from "../../common/Types";
+import React, { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useMedia } from "react-use";
+import GridCanvasContext from "../../common/GridCanvasContext";
+import { CLICK_TYPES, ColorArray, DEFAULT_COLOUR, ERASE_COLOUR } from "../../common/Types";
 import ColourGrid from "./ColourGrid";
 
-const {NONE, RIGHT} = CLICK_TYPES;
+const { NONE, RIGHT } = CLICK_TYPES;
 
 type ColourGridManagerProps = {
   columnCount: number,
   rowCount: number,
-  grid: number[][][],
+  grid: ColorArray[][],
   setGrid: React.Dispatch<React.SetStateAction<{
-    grid: number[][][],
+    grid: ColorArray[][],
     columnCount: number,
     rowCount: number,
   }>>,
   sliding: boolean,
 }
 
-function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: ColourGridManagerProps) {
+function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: ColourGridManagerProps) {
 
+  const {canvas, resolution} = useContext(GridCanvasContext);
   const [paintColour] = useState(DEFAULT_COLOUR);
   const lastMouse = useRef<{ x: number, y: number }>();
-  const windowSize = useWindowSize();
-  const boxSizeInPixels = useMemo(() => Math.floor(Math.min(
-      (windowSize.width * 0.8) / columnCount,
-      (windowSize.height * 0.8) / rowCount
-  )), [columnCount, rowCount, windowSize.height, windowSize.width]);
 
   const paintGridBox = useMemo(
       () => (rowIndex: number, colIndex: number, shouldPaint: boolean) => {
@@ -55,15 +52,12 @@ function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: Colo
   const isMobile = useMedia('(hover: none) and (pointer: coarse)');
   const [border, setBorder] = useState(false);
   useEffect(() => {
-    const gridHeight = boxSizeInPixels * rowCount;
-    const minY = (windowSize.height - gridHeight) / 2;
-    const maxY = (windowSize.height + gridHeight) / 2;
+    if (!canvas || !resolution) return () => {};
 
-    const gridWidth = boxSizeInPixels * columnCount;
-    const minX = (windowSize.width - gridWidth) / 2;
-    const maxX = (windowSize.width + gridWidth) / 2;
+    const maxY = canvas.offsetHeight;
+    const maxX = canvas.offsetWidth;
 
-    const withinRange = (x: number, y: number) => x > minX && x < maxX && y > minY && y < maxY;
+    const withinRange = (x: number, y: number) => x > 0 && x < maxX && y > 0 && y < maxY;
     const drawLine = (x: number, y: number, buttons: number) => {
       document.body.style.cursor = withinRange(x, y) ? (buttons & RIGHT ? 'cell' : 'crosshair') : 'default';
 
@@ -78,8 +72,8 @@ function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: Colo
               y: y + deltaY / delta * index
             }))
             .map(({x, y}) => ({
-              colIndex: Math.floor((x - minX) / (boxSizeInPixels)),
-              rowIndex: Math.floor((y - minY) / (boxSizeInPixels))
+              colIndex: Math.floor(x / (maxX / columnCount)),
+              rowIndex: Math.floor(y / (maxY / rowCount))
             }))
             .filter(({colIndex, rowIndex}) =>
                 colIndex >= 0 && colIndex < columnCount && rowIndex >= 0 && rowIndex < rowCount
@@ -89,7 +83,7 @@ function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: Colo
       }
     }
 
-    const onpointermove = ({x, y, buttons}: MouseEvent) => {
+    const onpointermove = ({ offsetX:x, offsetY:y, buttons }: MouseEvent) => {
       const currentlyWithinRange = withinRange(x, y);
 
       if (!isMobile) {
@@ -108,20 +102,19 @@ function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: Colo
       lastMouse.current = {x, y};
     };
 
-    const onpointerdown = (e: MouseEvent) => {
-      const {x, y, buttons} = e;
+    const onpointerdown = ({offsetX:x, offsetY:y, buttons }: MouseEvent) => {
       const currentlyWithinRange = withinRange(x, y);
       if (isMobile) {
         setBorder(currentlyWithinRange);
       }
       if (currentlyWithinRange) {
-        const colIndex = Math.floor((x - minX) / (boxSizeInPixels));
-        const rowIndex = Math.floor((y - minY) / (boxSizeInPixels));
+        const colIndex = Math.floor(x / (maxX / columnCount));
+        const rowIndex = Math.floor(y / (maxY / rowCount));
         paintGridBox(rowIndex, colIndex, !(buttons & RIGHT))
       }
     };
 
-    const onpointerout = ({x, y, buttons}: MouseEvent) => {
+    const onpointerout = ({ offsetX:x, offsetY:y, buttons }: MouseEvent) => {
       if (isMobile) {
         setBorder(false);
       }
@@ -133,23 +126,22 @@ function ColourGridManager({columnCount, rowCount, grid, setGrid, sliding}: Colo
       lastMouse.current = undefined;
     }
 
-    window.onpointermove = onpointermove;
-    window.onpointerdown = onpointerdown;
-    window.onpointerout = onpointerout;
+    canvas.onpointermove = onpointermove;
+    canvas.onpointerdown = onpointerdown;
+    canvas.onpointerout = onpointerout;
 
     return () => {
-      window.removeEventListener("pointermove", onpointermove);
-      window.removeEventListener("pointerdown", onpointerdown);
-      window.removeEventListener("pointerout", onpointerout);
+      canvas.removeEventListener("pointermove", onpointermove);
+      canvas.removeEventListener("pointerdown", onpointerdown);
+      canvas.removeEventListener("pointerout", onpointerout);
     }
-  }, [border, boxSizeInPixels, columnCount, isMobile, paintGridBox, paintGridLine, rowCount, windowSize]);
+  }, [border, columnCount, isMobile, paintGridBox, paintGridLine, rowCount, canvas, resolution]);
 
   return useMemo(() => <ColourGrid grid={grid}
                                    columnCount={columnCount}
                                    rowCount={rowCount}
-                                   boxSizeInPixels={boxSizeInPixels}
                                    border={border || sliding}
-  />, [border, boxSizeInPixels, columnCount, grid, rowCount, sliding]);
+  />, [border, columnCount, grid, rowCount, sliding]);
 
 }
 

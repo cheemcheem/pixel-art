@@ -1,28 +1,53 @@
-import {Color3} from "@babylonjs/core";
-import React from "react";
+import { Color, ColorArray } from "../../common/Types";
+import { useContext, useEffect } from "react";
+import GridCanvasContext from "../../common/GridCanvasContext";
 
 type ColourGridBoxProps = {
-  col: number[],
+  col: ColorArray,
   colIndex: number,
   rowIndex: number,
-  boxSizeInPixels: number,
   columnCount: number,
   rowCount: number,
   border: boolean,
 };
 
-const ColourGridBox = ({col, colIndex, rowIndex, boxSizeInPixels, columnCount, rowCount, border}
-                           : ColourGridBoxProps) =>
-    <rectangle
-        name={`${rowIndex},${colIndex}`}
-        key={`${rowIndex},${colIndex}`}
-        background={Color3.FromArray(col).toHexString()}
-        topInPixels={boxSizeInPixels * (rowIndex - rowCount / 2 + 1 / 2)}
-        leftInPixels={boxSizeInPixels * (colIndex - columnCount / 2 + 1 / 2)}
-        widthInPixels={boxSizeInPixels}
-        heightInPixels={boxSizeInPixels}
-        color={"#696969"}
-        thickness={border ? 1 : 0}
-    />
-;
-export default ColourGridBox;
+export default function ColourGridBox({ col, colIndex, rowIndex, columnCount, rowCount, border }
+  : ColourGridBoxProps) {
+  const { canvas } = useContext(GridCanvasContext);
+  
+  useEffect(() => {
+    let unmount = () => { };
+
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const {width, height} = ctx.canvas;
+        const boxWidth = width / columnCount;
+        const boxHeight = height / rowCount;
+        const fillColour = Color.FromArray(col).toHexString();
+        const box: [x: number, y: number, w: number, h: number] = [
+          boxWidth * colIndex,
+          boxHeight * rowIndex,
+          boxWidth,
+          boxHeight,
+        ];
+
+        ctx.fillStyle = fillColour;
+        ctx.strokeStyle = fillColour;
+        ctx.lineWidth = 1;
+        ctx.fillRect.apply(ctx, box);
+
+        if (border) {
+          ctx.strokeStyle = "#696969";
+        }
+        ctx.strokeRect.apply(ctx, box);
+        
+        unmount = () => ctx.clearRect.apply(ctx, box);
+      }
+    }
+
+    return unmount;
+  }, [canvas, col, colIndex, rowIndex, columnCount, rowCount, border])
+
+  return <></>;
+};

@@ -34,7 +34,7 @@ const DownloadButton = ({grid}: { grid: number[][][] }) => {
   }, [grid]);
 
   return <>
-    <babylon-button
+    {/* <babylon-button
         name={"download"}
         widthInPixels={widthInPixels}
         heightInPixels={heightInPixels}
@@ -48,7 +48,7 @@ const DownloadButton = ({grid}: { grid: number[][][] }) => {
                  paddingRightInPixels={isHorizontal ? 4 : 0}
                  fontSizeInPixels={18}
                  text={isHorizontal ? "s\na\nv\ne" : "save"}/>
-    </babylon-button>
+    </babylon-button> */}
   </>;
 }
 

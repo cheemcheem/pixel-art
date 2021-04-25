@@ -1,5 +1,3 @@
-import {EventState} from "@babylonjs/core";
-import {Image} from "@babylonjs/gui";
 import React, {memo, useEffect, useRef, useState} from "react";
 import {useWindowSize} from "react-use";
 
@@ -28,7 +26,7 @@ const LogoImage = ({letter, leftInPixels, topInPixels}: LogoImageProps) => {
   })
 
   return <>
-    <babylon-image
+    {/* <babylon-image
         onBeforeDrawObservable={(image: Image, _: EventState) => {
           image.host.getContext().imageSmoothingEnabled = false;
         }}
@@ -40,7 +38,7 @@ const LogoImage = ({letter, leftInPixels, topInPixels}: LogoImageProps) => {
         leftInPixels={leftInPixels}
         url={`/pixel/${letter}.png`}
         // onCreated={(image, scene) => ref.current = image}
-    />
+    /> */}
   </>
 };
 

@@ -19,7 +19,3 @@ html, body, #root, #pixelArtCanvas {
   margin: 0;
   padding: 0;
 }
-
-#pixelArtCanvas {
-  touch-action: none;
-}

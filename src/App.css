@@ -1,0 +1,5 @@
+#pixel-art-container {
+    /* todo make into display grid */
+    display: flex; 
+    justify-content: center;
+}
