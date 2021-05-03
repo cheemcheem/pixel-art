@@ -25,9 +25,8 @@ const LogoImage = ({ letter }: LogoImageProps) => {
   })
 
   return (
-    <div className="pixel-logo-img-container">
+    <div className="pixel-logo-img-container" key={letter}>
       <img className="pixel-logo-img"
-        key={letter}
         src={`/pixel/${letter}.png`}
         alt={letter}
         style={{ transform: "rotate(" + rotation + "rad)" }}

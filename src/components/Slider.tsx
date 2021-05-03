@@ -14,7 +14,7 @@ type SliderPropsType = {
 export default function Slider({ dimension, setSliding, setDimension }: SliderPropsType) {
 
   const ref = React.useRef(null);
-  const vertical = useMedia("(min-aspect-ratio: 1 / 1)");
+  const vertical = useMedia("(min-aspect-ratio: 9 / 10)");
   const { isSliding, value } = useSlider(ref, {vertical, reverse: vertical});
 
   useEffect(() => setSliding(isSliding),  [isSliding, setSliding]);

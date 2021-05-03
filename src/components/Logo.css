@@ -47,7 +47,7 @@
 }
 
 .pixel-logo-img {
-    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 
     border: 2px solid black;
     border-radius: 50%;
@@ -72,7 +72,7 @@
     }
 }
 
-@media screen and (min-aspect-ratio: 1 / 1) {
+@media screen and (min-aspect-ratio: 9 / 10){
 
     #pixel-logo-header {
         grid-template-rows: repeat(5, 1fr);

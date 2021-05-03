@@ -22,14 +22,13 @@ const GridCanvas = ({ children }: PropsWithChildren<any>) => {
         window.addEventListener('resize', setNewVH);
 
         return () => window.removeEventListener('resize', setNewVH);
-    }, [])
+    }, []);
 
-    return <>
+    return (<>
         <div id="pixel-art-canvas-container">
-            <canvas 
+            <canvas
                 width={resolution.x * devicePixelRatio}
                 height={resolution.y * devicePixelRatio}
-                // style={{ width: resolution.x, height: resolution.y }}
                 id="pixel-art-canvas"
                 onContextMenu={(e) => e.preventDefault()}
                 ref={setCanvas} >
@@ -39,7 +38,7 @@ const GridCanvas = ({ children }: PropsWithChildren<any>) => {
         <GridCanvasContext.Provider value={{ canvas, resolution }}>
             {children}
         </GridCanvasContext.Provider>
-    </>
+    </>);
 };
 
 export default GridCanvas;

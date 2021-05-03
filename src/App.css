@@ -14,26 +14,26 @@
         '.  slider  download .'
     ;
     grid-template-columns: 
-        minmax(100px, auto) minmax(auto, 500px) minmax(auto, 500px) minmax(100px, auto)
+        5% 1fr 1fr 5%
     ;
     grid-template-rows: 
         var(--max-logo)
         minmax(auto, 100%) 
         var(--slider-thickness)
     ;
-    grid-row-gap: var(--padding);
-    grid-auto-flow: column;
+    gap: var(--padding);
 
     align-items: center;
+    align-content: center;
     justify-content: center;
 
-    width: 100%;
+    width: calc(100% - 2 * var(--padding));
     height: calc(100% - 2 * var(--padding));
-    padding: var(--padding) 0;
+    padding: var(--padding);
     
 }
 
-@media screen and (max-aspect-ratio: 3 / 4) {
+@media screen and ( max-aspect-ratio: 3 / 4 ) {
     #pixel-art-container {
         grid-template: 
             ' header '
@@ -55,17 +55,15 @@
     }
 }
 
-@media screen and (min-aspect-ratio: 1 / 1){
+@media screen and (min-aspect-ratio: 9 / 10 ) {
     #pixel-art-container {
         grid-template: 
             'header download slider . main'
         ;
-        grid-column-gap: var(--padding);
         grid-template-columns: minmax(var(--min-logo), var(--max-logo)) 40px var(--slider-thickness) 1fr minmax(auto, calc(var(--vh, 1vh) * 100 - 2 * var(--padding)));
-        grid-template-rows: 100%;
+        grid-template-rows: min-content;
 
         width: calc(100% - 2 * var(--padding));
-        padding: var(--padding);
 
     }
 }
