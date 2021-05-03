@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMedia } from "react-use";
 import GridCanvasContext from "../../common/GridCanvasContext";
 import { CLICK_TYPES, ColorArray, DEFAULT_COLOUR, ERASE_COLOUR } from "../../common/Types";
@@ -10,11 +10,7 @@ type ColourGridManagerProps = {
   columnCount: number,
   rowCount: number,
   grid: ColorArray[][],
-  setGrid: React.Dispatch<React.SetStateAction<{
-    grid: ColorArray[][],
-    columnCount: number,
-    rowCount: number,
-  }>>,
+  setGrid: React.Dispatch<React.SetStateAction<ColorArray[][]>>,
   sliding: boolean,
 }
 
@@ -29,9 +25,9 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
         const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
         if (grid[rowIndex][colIndex] !== newColour) {
           setGrid(prevGrid => {
-            const newGrid = prevGrid.grid.map(a => a.map(b => b));
+            const newGrid = prevGrid.map(a => a.map(b => b));
             newGrid[rowIndex][colIndex] = newColour;
-            return {...prevGrid, grid: newGrid};
+            return newGrid;
           });
         }
       },
@@ -42,9 +38,9 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
       (boxes: { rowIndex: number, colIndex: number }[], shouldPaint: boolean) => {
         const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
         setGrid(prevGrid => {
-          const newGrid = prevGrid.grid.map(a => a.map(b => b));
+          const newGrid = prevGrid.map(a => a.map(b => b));
           boxes.forEach(({rowIndex, colIndex}) => newGrid[rowIndex][colIndex] = newColour);
-          return {...prevGrid, grid: newGrid};
+          return newGrid;
         });
       }, [paintColour, setGrid]
   );
@@ -85,7 +81,6 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
 
     const onpointermove = ({ offsetX:x, offsetY:y, buttons }: MouseEvent) => {
       const currentlyWithinRange = withinRange(x, y);
-
       if (!isMobile) {
         setBorder(currentlyWithinRange);
       }
@@ -119,10 +114,13 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
         setBorder(false);
       }
       if (buttons !== NONE) {
+
         drawLine(x, y, buttons);
       } else {
         document.body.style.cursor = withinRange(x, y) ? 'crosshair' : 'default';
       }
+      setBorder(false);
+
       lastMouse.current = undefined;
     }
 
@@ -145,34 +143,4 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
 
 }
 
-export default memo(ColourGridManager, (prevProps, nextProps) => {
-  const {columnCount: columnCountPrev, grid: gridPrev, rowCount: rowCountPrev, setGrid: setGridPrev, sliding: slidingPrev} = prevProps;
-  const {columnCount: columnCountNext, grid: gridNext, rowCount: rowCountNext, setGrid: setGridNext, sliding: slidingNext} = nextProps;
-
-  if (columnCountPrev !== columnCountNext) return false;
-  if (rowCountPrev !== rowCountNext) return false;
-  if (setGridPrev !== setGridNext) return false;
-  if (slidingPrev !== slidingNext) return false;
-
-  if (gridPrev.length !== gridNext.length) return false;
-
-  for (let colIndex = 0; colIndex < gridPrev.length; colIndex++) {
-    const gridColPrev = gridPrev[colIndex];
-    const gridColNext = gridNext[colIndex];
-    if (gridColPrev.length !== gridColNext.length) return false;
-
-    for (let rowIndex = 0; rowIndex < gridColPrev.length; rowIndex++) {
-      const gridRowPrev = gridColPrev[rowIndex];
-      const gridRowNext = gridColNext[rowIndex];
-      if (gridRowPrev.length !== gridRowNext.length) return false;
-
-      for (let colourIndex = 0; colourIndex < gridRowPrev.length; colourIndex++) {
-        const gridColourPrev = gridRowPrev[colourIndex];
-        const gridColourNext = gridRowNext[colourIndex];
-        if (gridColourPrev !== gridColourNext) return false;
-      }
-    }
-  }
-
-  return true;
-})
+export default ColourGridManager;

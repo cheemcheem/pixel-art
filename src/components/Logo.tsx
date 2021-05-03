@@ -1,12 +1,11 @@
-import React, {memo, useEffect, useRef, useState} from "react";
-import {useWindowSize} from "react-use";
+import { memo, useEffect, useRef, useState } from "react";
+import './Logo.css';
 
-type LogoImageProps = {
-  letter: "p" | "i" | "x" | "e" | "l",
-  leftInPixels: number,
-  topInPixels: number,
-};
-const LogoImage = ({letter, leftInPixels, topInPixels}: LogoImageProps) => {
+type LogoLetter = "p" | "i" | "x" | "e" | "l";
+const logoLetters: LogoLetter[] = ["p", "i", "x", "e", "l"];
+type LogoImageProps = { letter: LogoLetter };
+
+const LogoImage = ({ letter }: LogoImageProps) => {
   const [rotation, setRotation] = useState(Math.random() * 0.6 - 0.3);
   const lastRendered = useRef(Date.now());
 
@@ -19,46 +18,29 @@ const LogoImage = ({letter, leftInPixels, topInPixels}: LogoImageProps) => {
         const random = Math.random() * 0.6 - 0.3;
         const newRotation = prevRotation + random;
         return newRotation < -0.3 || newRotation > 0.3
-            ? prevRotation - random
-            : newRotation;
+          ? prevRotation - random
+          : newRotation;
       })
     }
   })
 
-  return <>
-    {/* <babylon-image
-        onBeforeDrawObservable={(image: Image, _: EventState) => {
-          image.host.getContext().imageSmoothingEnabled = false;
-        }}
-        rotation={rotation}
-        name={"pic"}
-        widthInPixels={40}
-        heightInPixels={40}
-        topInPixels={40 + topInPixels}
-        leftInPixels={leftInPixels}
-        url={`/pixel/${letter}.png`}
-        // onCreated={(image, scene) => ref.current = image}
-    /> */}
-  </>
+  return (
+    <div className="pixel-logo-img-container">
+      <img className="pixel-logo-img"
+        key={letter}
+        src={`/pixel/${letter}.png`}
+        alt={letter}
+        style={{ transform: "rotate(" + rotation + "rad)" }}
+      />
+    </div>
+  );
+
 };
 
 const Logo = (_: { trigger: any }) => {
-  const {width, height} = useWindowSize();
-
-  const isHorizontal = width > height;
-
-  return <>
-    <LogoImage letter={"p"} topInPixels={isHorizontal ? -40 - height / 3 : -40 - height * 0.45}
-               leftInPixels={isHorizontal ? -width * 0.45 : -width / 3}/>
-    <LogoImage letter={"i"} topInPixels={isHorizontal ? -40 - height / 6 : -40 - height * 0.45}
-               leftInPixels={isHorizontal ? -width * 0.45 : -width / 6}/>
-    <LogoImage letter={"x"} topInPixels={isHorizontal ? -40 : -40 - height * 0.45}
-               leftInPixels={isHorizontal ? -width * 0.45 : 0}/>
-    <LogoImage letter={"e"} topInPixels={isHorizontal ? -40 + height / 6 : -40 - height * 0.45}
-               leftInPixels={isHorizontal ? -width * 0.45 : +width / 6}/>
-    <LogoImage letter={"l"} topInPixels={isHorizontal ? -40 + height / 3 : -40 - height * 0.45}
-               leftInPixels={isHorizontal ? -width * 0.45 : +width / 3}/>
-  </>
+  return <header id="pixel-logo-header">
+    {logoLetters.map((letter) => ({ letter })).map(LogoImage)}
+  </header>
 }
 
-export default memo(Logo, ({trigger: prev}, {trigger: next}) => prev === next);
+export default memo(Logo, ({ trigger: prev }, { trigger: next }) => prev === next);

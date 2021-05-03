@@ -1,50 +1,41 @@
-import React, {memo} from "react";
-import {ERASE_COLOUR, GRID_SETTINGS} from "../common/Types";
-import useRotationDimensions from "../hooks/useRotationDimensions";
+import React, { useEffect, useMemo } from "react";
+import { useMedia, useSlider } from "react-use";
+import { GRID_SETTINGS } from "../common/Types";
+import './Slider.css';
 
-const {minDimension, maxDimension, defDimension} = GRID_SETTINGS;
+const { minDimension, maxDimension } = GRID_SETTINGS;
+
 type SliderPropsType = {
+  dimension: number,
   setSliding: React.Dispatch<React.SetStateAction<boolean>>,
-  setGrid: React.Dispatch<React.SetStateAction<{
-    grid: number[][][],
-    columnCount: number,
-    rowCount: number,
-  }>>,
+  setDimension: (dimension: number) => void,
 };
 
-function Slider({setSliding, setGrid}: SliderPropsType) {
-  const {widthInPixels, heightInPixels, leftInPixels, topInPixels, isHorizontal} = useRotationDimensions({
-    longSidePercent: 0.8,
-    shortSidePercent: 0.1,
-    shortSideMinPixels: 40,
-    shortSideOffSetPercent: 0.40,
-    default: {vertical: "top", horizontal: "left"},
-  });
+export default function Slider({ dimension, setSliding, setDimension }: SliderPropsType) {
 
-  return <>
-    {/* <slider minimum={minDimension}
-            maximum={maxDimension}
-            value={defDimension}
-            onPointerDownObservable={() => setSliding(true)}
-            onPointerUpObservable={() => setSliding(false)}
-            step={1}
-            barOffset={0}
-            thumbWidth={isHorizontal ? widthInPixels : heightInPixels}
-            isThumbClamped
-            widthInPixels={widthInPixels}
-            heightInPixels={heightInPixels}
-            leftInPixels={leftInPixels}
-            topInPixels={topInPixels}
-            isVertical={isHorizontal}
-            background={"pink"}
-            thumbColor={"salmon"}
-            onValueChangedObservable={(dim: number) => setGrid({
-              grid: Array(dim).fill(Array(dim).fill(ERASE_COLOUR.asArray())),
-              columnCount: dim,
-              rowCount: dim,
-            })}
-    /> */}
-  </>;
+  const ref = React.useRef(null);
+  const vertical = useMedia("(min-aspect-ratio: 1 / 1)");
+  const { isSliding, value } = useSlider(ref, {vertical, reverse: vertical});
+
+  useEffect(() => setSliding(isSliding),  [isSliding, setSliding]);
+  useEffect(() => {
+    /*
+      On initial render, this effect would have run and set dimension to minDimension since value is 0.
+      So this if statement protects against this case.
+      It does not affect regular usage since 0.1 etc would be floored to 0 and therefore minDimension is still reachable.
+    */
+    if (value > 0) {
+      setDimension(Math.floor(minDimension + value * (maxDimension - minDimension)))
+    }
+  }, [value, setDimension]);
+
+  const sliderHandleOffset = useMemo(() => `calc((100% - 40px) * ${(dimension - minDimension) / (maxDimension - minDimension)} )`, [dimension])
+  return (
+    <div id="slider-container">
+      <div ref={ref} id="slider">
+      <div id="slider-handle-offset" style={vertical ? { height: sliderHandleOffset} : { width: sliderHandleOffset}} />
+      <div id="slider-handle"><span>{dimension}</span></div>
+    </div>
+    </div>
+  );
 }
-
-export default memo(Slider, () => true);
