@@ -1,0 +1,66 @@
+:root {
+    --padding: 20px;
+    /* --vh is set in GridCanvas.tsx */
+    --min-logo: 32px;
+    --max-logo: 64px;
+}
+
+#pixel-art-container {
+    display: grid; 
+    grid-template: 
+        '. header .'
+        '.  main  .'
+        '.  tool  .'
+    ;
+    grid-template-columns: 
+        5% 1fr 5%
+    ;
+    grid-template-rows: 
+        var(--max-logo)
+        minmax(auto, 100%) 
+        auto
+    ;
+    gap: var(--padding);
+
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+
+    width: calc(100% - 2 * var(--padding));
+    height: calc(100% - 2 * var(--padding));
+    padding: var(--padding);
+    
+}
+
+@media screen and ( max-aspect-ratio: 3 / 4 ) {
+    #pixel-art-container {
+        grid-template: 
+            ' header '
+            '........'
+            '  main  '
+            '........'
+            '  tool  '
+        ;
+        grid-template-columns: calc(100vw - 2 * var(--padding));
+        grid-template-rows: 
+            minmax(var(--min-logo), var(--max-logo))
+            1fr
+            calc(100vw - 2 * var(--padding))
+            1fr
+            auto
+        ;    
+    }
+}
+
+@media screen and (min-aspect-ratio: 9 / 10 ) {
+    #pixel-art-container {
+        grid-template: 
+            'header tool . main'
+        ;
+        grid-template-columns: minmax(var(--min-logo), var(--max-logo)) auto 1fr minmax(auto, calc(var(--vh, 1vh) * 100 - 2 * var(--padding)));
+        grid-template-rows: min-content;
+
+        width: calc(100% - 2 * var(--padding));
+
+    }
+}

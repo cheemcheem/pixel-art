@@ -1,0 +1,152 @@
+#toolbar {
+    --toolbar-padding: 10px;
+
+    grid-area: tool;
+
+    display: grid;
+    grid-template-areas: 
+        'sl sl sl sl sl sl'
+        'co dr er .. sv sv'
+        'un re rs .. sv sv'
+    ;
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--toolbar-padding);
+    background-color: lightblue;
+    outline: 2px solid black;
+
+    width: calc(100% - 2 * var(--toolbar-padding));
+    height: calc(100% - 2 * var(--toolbar-padding));
+    max-width: 600px;
+    justify-self: center;
+    padding: var(--toolbar-padding);
+}
+
+
+.toolbar-item {
+    outline: black solid 2px;
+    width: 100%;
+    height: 100%;
+}
+
+.toolbar-button {
+    background-color: pink;
+    font-family: monospace;
+    font-size: large;
+    user-select: none;
+    border: none;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+
+    display: inline-grid;
+    grid-template-areas: 'ic te';
+
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: auto 0;
+}
+
+.toolbar-button:active, .toolbar-button:disabled {
+    background-color: lightgrey;
+    color: black;
+}
+
+.toolbar-button:hover, .toolbar-button:focus {
+    border: 5px solid black;
+}
+
+.toolbar-button:focus:not(:focus-visible) {
+    border: none;
+}
+
+.toolbar-button > svg {
+    grid-area: ic;
+    image-rendering: auto;
+    width: 2ch;
+    height: 2ch;
+}
+
+.button-text {
+    grid-area: te;
+    text-align: end;
+    visibility: hidden;
+}
+
+[id$=dark-mode] {
+    visibility: hidden;
+}
+
+.prefers-color-scheme {
+    fill: black;
+    stroke: black;
+}
+
+@media speech {
+    .toolbar-button {
+        grid-template-columns: unset;
+    }
+    .button-text {
+        visibility: visible;
+    }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+
+    [id$=dark-mode] {
+        visibility: visible;
+    }
+
+    [id$=light-mode] {
+        visibility: hidden;
+    }
+
+    .prefers-color-scheme {
+        fill: white;
+        stroke: white;
+    }
+
+    #toolbar {
+        background-color: darkslategray;
+    }
+
+    .toolbar-button {
+        background-color: darkviolet;
+        color: bisque;
+        font-weight: bold;
+    }
+
+    .toolbar-button:active, .toolbar-button:disabled {
+        background-color: grey;
+    }
+}
+
+@media screen and (min-aspect-ratio: 9 / 10 ) {
+    #toolbar {
+        grid-template-areas: 
+            'sl co co co co'
+            'sl dr dr er er'
+            'sl un un re re'
+            'sl rs rs rs rs'
+            'sl sv sv sv sv'
+            'sl sv sv sv sv'
+        ;
+        grid-template-rows: repeat(6, 1fr);
+        grid-template-columns: repeat(5, 1fr);
+        max-height: 400px;
+    }
+
+    .toolbar-button {
+        text-align: left;
+        padding: 0 clamp(10px, 20%, 50px);
+    }
+}
+
+@media screen and (prefers-contrast: more) {
+    .button-text {
+        display: unset;
+    }
+    .button-icon {
+        display: none;
+    }
+}

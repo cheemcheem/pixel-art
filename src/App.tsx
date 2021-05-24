@@ -1,41 +1,48 @@
-import {Color3, Color4, Vector3} from "@babylonjs/core";
-import React, {useMemo, useState} from "react";
-import {Engine, Scene} from 'react-babylonjs';
-import {ERASE_COLOUR, GRID_SETTINGS} from "./common/Types";
-import DownloadButton from "./components/DownloadButton";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Color, ColorArray, ERASE_COLOUR, DEFAULT_COLOUR } from "./common/Types";
 import ColourGridManager from "./components/grid/ColourGridManager";
+import GridCanvas from "./components/GridCanvas";
+import './App.css';
 import Logo from "./components/Logo";
-import Slider from "./components/Slider";
-
-const {defDimension} = GRID_SETTINGS;
+import useDimension from "./hooks/useDimension";
+import Toolbar from "./components/Toolbar";
+import useDarkMode from "./hooks/useDarkMode";
+import PenColourContext from "./common/PenColourContext";
 
 function App() {
-  const [{grid, columnCount, rowCount}, setGrid] = useState(
-      {
-        grid: Array(defDimension).fill(Array(defDimension).fill(ERASE_COLOUR.asArray())) as number[][][],
-        columnCount: defDimension,
-        rowCount: defDimension
-      }
-  );
+
+  const [dimension, setDimension] = useDimension();
+  const [grid, setGrid] = useState(() => Array(dimension).fill(Array(dimension).fill(ERASE_COLOUR.asArray())) as ColorArray[][]);
+  const resetGrid = useCallback(() => setGrid(Array<ColorArray[]>(dimension).fill(Array<ColorArray>(dimension).fill(ERASE_COLOUR.asArray()))), [dimension, setGrid]);
+  useEffect(resetGrid, [resetGrid]);
   const [sliding, setSliding] = useState(false);
+
+  const darkMode = useDarkMode();
+  const backgroundColor = useMemo(() => Color.FromArray([
+    Math.random() * 100 + (darkMode ? 0 : 100),
+    Math.random() * 100 + (darkMode ? 0 : 100),
+    Math.random() * 100 + (darkMode ? 0 : 100),
+  ]).toHexString(), [darkMode]);
+  useEffect(() => { document.body.style.backgroundColor = backgroundColor }, [backgroundColor]);
+
+  const [penColour, setPenColour] = useState(DEFAULT_COLOUR);
+
   return <>
-    <Engine antialias canvasId="pixelArtCanvas">
-      <Scene clearColor={useMemo(() => Color4.FromColor3(Color3.Random()), [])}>
-        <adtFullscreenUi name={"pixelArtFullScreenUI"}>
-          <Slider setSliding={setSliding} setGrid={setGrid}/>
-          <DownloadButton grid={grid}/>
+    <div id="pixel-art-container" style={{ backgroundColor }}>
+      <PenColourContext.Provider value={{penColour, setPenColour}}>
+        <Logo trigger={grid} />
+        <GridCanvas>
           <ColourGridManager
-              columnCount={columnCount}
-              rowCount={rowCount}
-              grid={grid}
-              setGrid={setGrid}
-              sliding={sliding}
+            columnCount={dimension}
+            rowCount={dimension}
+            grid={grid}
+            setGrid={setGrid}
+            sliding={sliding}
           />
-          <Logo trigger={rowCount}/>
-        </adtFullscreenUi>
-        <freeCamera setActiveOnSceneIfNoneActive name={"FreeCamera"} position={Vector3.Zero()}/>
-      </Scene>
-    </Engine>
+        </GridCanvas>
+        <Toolbar dimension={dimension} grid={grid} setDimension={setDimension} setSliding={setSliding} resetGrid={resetGrid}/>
+      </PenColourContext.Provider>
+    </div>
   </>;
 }
 
