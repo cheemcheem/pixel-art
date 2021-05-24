@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMedia } from "react-use";
 import GridCanvasContext from "../../common/GridCanvasContext";
-import { CLICK_TYPES, ColorArray, DEFAULT_COLOUR, ERASE_COLOUR } from "../../common/Types";
+import PenColourContext from "../../common/PenColourContext";
+import { CLICK_TYPES, ColorArray, ERASE_COLOUR } from "../../common/Types";
 import ColourGrid from "./ColourGrid";
 
 const { NONE, RIGHT } = CLICK_TYPES;
@@ -17,12 +18,12 @@ type ColourGridManagerProps = {
 function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: ColourGridManagerProps) {
 
   const {canvas, resolution} = useContext(GridCanvasContext);
-  const [paintColour] = useState(DEFAULT_COLOUR);
+  const {penColour} = useContext(PenColourContext);
   const lastMouse = useRef<{ x: number, y: number }>();
 
   const paintGridBox = useMemo(
       () => (rowIndex: number, colIndex: number, shouldPaint: boolean) => {
-        const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
+        const newColour = (shouldPaint ? penColour : ERASE_COLOUR).asArray();
         if (grid[rowIndex][colIndex] !== newColour) {
           setGrid(prevGrid => {
             const newGrid = prevGrid.map(a => a.map(b => b));
@@ -31,18 +32,18 @@ function ColourGridManager({ columnCount, rowCount, grid, setGrid, sliding }: Co
           });
         }
       },
-      [grid, paintColour, setGrid]
+      [grid, penColour, setGrid]
   );
 
   const paintGridLine = useMemo(() =>
       (boxes: { rowIndex: number, colIndex: number }[], shouldPaint: boolean) => {
-        const newColour = (shouldPaint ? paintColour : ERASE_COLOUR).asArray();
+        const newColour = (shouldPaint ? penColour : ERASE_COLOUR).asArray();
         setGrid(prevGrid => {
           const newGrid = prevGrid.map(a => a.map(b => b));
           boxes.forEach(({rowIndex, colIndex}) => newGrid[rowIndex][colIndex] = newColour);
           return newGrid;
         });
-      }, [paintColour, setGrid]
+      }, [penColour, setGrid]
   );
 
   const isMobile = useMedia('(hover: none) and (pointer: coarse)');

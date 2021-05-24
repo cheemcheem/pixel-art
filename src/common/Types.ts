@@ -1,3 +1,5 @@
+import {hsl, toHex} from 'khroma';
+
 export const CLICK_TYPES = {
   NONE: 0,
   LEFT: 1,
@@ -26,6 +28,10 @@ export class Color {
     return [this.r, this.g, this.b, this.a];
   }
 
+  equals(color: Color) {
+    return Color.equals(this.asArray(), color.asArray());
+  }
+
   private static validate(t: number) {
     if (t === undefined || t === null || t > 255 || t < 0) {
       throw new Error(`RGBA number ${t} is out of 0 - 255 range!`);
@@ -43,6 +49,18 @@ export class Color {
 
   static Grey() {
     return Color.FromHexString('#696969');
+  }
+
+  static Palette() {
+    return [
+      Color.FromHexString(toHex(hsl(0, 100, 50))),
+      Color.FromHexString(toHex(hsl(60, 100, 50))),
+      Color.FromHexString(toHex(hsl(120, 100, 50))),
+      Color.FromHexString(toHex(hsl(180, 100, 50))),
+      Color.FromHexString(toHex(hsl(240, 100, 50))),
+      Color.FromHexString(toHex(hsl(300, 100, 50))),
+      Color.FromHexString(toHex(hsl(360, 100, 50))),
+    ];
   }
 
   static FromHexString(hex: string) {

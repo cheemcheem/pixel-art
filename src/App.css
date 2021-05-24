@@ -1,6 +1,5 @@
 :root {
     --padding: 20px;
-    --slider-thickness: 40px;
     /* --vh is set in GridCanvas.tsx */
     --min-logo: 32px;
     --max-logo: 64px;
@@ -9,17 +8,17 @@
 #pixel-art-container {
     display: grid; 
     grid-template: 
-        '.  header   header  .'
-        '.   main     main   .'
-        '.  slider  download .'
+        '. header .'
+        '.  main  .'
+        '.  tool  .'
     ;
     grid-template-columns: 
-        5% 1fr 1fr 5%
+        5% 1fr 5%
     ;
     grid-template-rows: 
         var(--max-logo)
         minmax(auto, 100%) 
-        var(--slider-thickness)
+        auto
     ;
     gap: var(--padding);
 
@@ -40,8 +39,7 @@
             '........'
             '  main  '
             '........'
-            ' slider '
-            'download'
+            '  tool  '
         ;
         grid-template-columns: calc(100vw - 2 * var(--padding));
         grid-template-rows: 
@@ -49,8 +47,7 @@
             1fr
             calc(100vw - 2 * var(--padding))
             1fr
-            var(--slider-thickness) 
-            40px
+            auto
         ;    
     }
 }
@@ -58,9 +55,9 @@
 @media screen and (min-aspect-ratio: 9 / 10 ) {
     #pixel-art-container {
         grid-template: 
-            'header download slider . main'
+            'header tool . main'
         ;
-        grid-template-columns: minmax(var(--min-logo), var(--max-logo)) 40px var(--slider-thickness) 1fr minmax(auto, calc(var(--vh, 1vh) * 100 - 2 * var(--padding)));
+        grid-template-columns: minmax(var(--min-logo), var(--max-logo)) auto 1fr minmax(auto, calc(var(--vh, 1vh) * 100 - 2 * var(--padding)));
         grid-template-rows: min-content;
 
         width: calc(100% - 2 * var(--padding));

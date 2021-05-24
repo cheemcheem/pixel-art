@@ -1,0 +1,77 @@
+:root {
+    --slider-size: 40px;
+}
+
+#slider {
+    grid-area: sl;
+    display: grid;
+    align-items: center;
+}
+
+#slider-body {
+    width: 100%;
+    height: 100%;
+    justify-self: center;
+    background: thistle;
+    display: flex;
+    align-items: center;
+}
+
+#slider-handle {
+    width: var(--slider-size);
+    height: var(--slider-size);
+    background: seashell;
+    outline: black solid 2px;
+    display: grid;
+    align-items: center;
+}
+
+#slider-handle:hover, #slider-handle:focus, #slider-handle:active {
+    outline: 5px solid black;
+    background-color: lightgray;
+}
+
+#slider-handle:focus:not(:focus-visible) {
+    outline: black solid 2px;
+}
+
+#slider-handle > span {
+    font-family: monospace;
+    text-align: center;
+    vertical-align: middle;
+    font-size: larger;
+    user-select: none;
+}
+
+@media screen and (min-aspect-ratio: 9 / 10 ) {
+    #slider-body {
+        flex-direction: column-reverse;
+    }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    #slider-handle:hover, #slider-handle:focus, #slider-handle:active {
+        background-color: gray;
+    }
+}
+
+#slider-handle-offset {
+    width: var(--slider-size);
+    height: var(--slider-size);
+}
+
+
+@media screen and (prefers-color-scheme: dark) {
+    #slider-body{
+        background-color: darkmagenta;
+    }
+
+    #slider-handle {
+        background-color: black;
+    }
+
+    #slider-handle > span {
+        color: white;  
+        font-weight: bold;
+    }
+}
