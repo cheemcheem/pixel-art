@@ -23,7 +23,11 @@ function App() {
     Math.random() * 100 + (darkMode ? 0 : 100),
     Math.random() * 100 + (darkMode ? 0 : 100),
   ]).toHexString(), [darkMode]);
-  useEffect(() => { document.body.style.backgroundColor = backgroundColor }, [backgroundColor]);
+  
+  useEffect(() => { 
+    document.body.style.backgroundColor = backgroundColor;
+    document.querySelector('meta[name="theme-color"]')!.setAttribute('content',  backgroundColor);
+  }, [backgroundColor]);
 
   const [penColour, setPenColour] = useState(DEFAULT_COLOUR);
 
